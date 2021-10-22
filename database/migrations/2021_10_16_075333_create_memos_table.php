@@ -14,15 +14,14 @@ class CreateMemosTable extends Migration
     public function up()
     {
         Schema::create('memos', function (Blueprint $table) {
-            $table->uuid('id')->unique();
-            $table->id('user_id')->nullable();
+            $table->uuid('id')->primary();
+            $table->bigInteger('user_id')->nullable();
             $table->uuid('folder_id')->nullable();
             $table->string('title');
             $table->text('contents');
             $table->boolean('is_public')->default(false);
             $table->boolean('is_archive')->default(false);
             $table->timestamps();
-            $table->primary('id');
         });
     }
 

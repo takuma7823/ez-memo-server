@@ -3,6 +3,10 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Crypt;
+use App\Exceptions\ApiAuthException;
+use Illuminate\Contracts\Encryption\DecryptException;
+use App\Models\Memo;
 
 class MemoRequest extends FormRequest
 {
@@ -23,11 +27,37 @@ class MemoRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            'folder_id' => 'nullable|integer',
-            'title' => 'required|string',
-            'contents' => 'required',
-            'is_public' => 'nullable|boolean',
-        ];
+        switch ($this->method()) {
+            case 'DELETE':
+                return [];
+            default:
+                return [
+                    'folder_id' => 'nullable|integer',
+                    'title' => 'required|string',
+                    'contents' => 'required',
+                    'is_public' => 'nullable|boolean',
+                ];
+        }
+    }
+
+    public function checkAuthKey()
+    {
+        try {
+            if (!$this->user()) {
+                $uuid = Crypt::decryptString($this->get('key', null));
+                if ($uuid !== $this->route('id')) {
+                    throw new ApiAuthException('no auth');
+                }
+            }
+        } catch (DecryptException $e) {
+            throw new ApiAuthException('no auth');
+        }
+    }
+
+    public function authorizeUser(Memo $memo)
+    {
+        if ($this->user() and ($memo->user_id !== $this->user()->id)) {
+            throw new ApiAuthException('no auth', 403);
+        }
     }
 }

@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\V1\MemoController;
 use App\Http\Controllers\API\V1\UserController;
+use App\Http\Controllers\API\V1\FolderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,6 +28,7 @@ Route::prefix('v1')->namespace('App\Http\Controllers\API\V1')->group(function ()
 
     Route::prefix('memos')->group(function () {
         Route::get('/', [MemoController::class, 'view']);
+        Route::get('/list', [MemoController::class, 'memos']);
         Route::post('/', [MemoController::class, 'store']);
         Route::patch('/{id}', [MemoController::class, 'update']);
         Route::delete('/{id}', [MemoController::class, 'delete']);
@@ -35,9 +37,16 @@ Route::prefix('v1')->namespace('App\Http\Controllers\API\V1')->group(function ()
     Route::prefix('user')->middleware('auth:api')->group(function () {
         Route::prefix('memos')->group(function () {
             Route::get('/', [MemoController::class, 'view']);
+            Route::get('/list', [MemoController::class, 'memos']);
             Route::post('/', [MemoController::class, 'store']);
             Route::patch('/{id}', [MemoController::class, 'update']);
             Route::delete('/{id}', [MemoController::class, 'delete']);
+        });
+        Route::prefix('folders')->group(function () {
+            Route::get('/', [FolderController::class, 'folders']);
+            Route::post('/', [FolderController::class, 'store']);
+            Route::patch('/{folder}', [FolderController::class, 'update']);
+            Route::delete('/{folder}', [FolderController::class, 'delete']);
         });
     });
 });

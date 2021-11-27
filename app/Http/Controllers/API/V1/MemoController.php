@@ -21,6 +21,16 @@ class MemoController extends Controller
     }
 
     /**
+     * メモ一覧取得API
+     *
+     * @return void
+     */
+    public function memos()
+    {
+        return MemoResource::collection($this->memoRepository->index());
+    }
+
+    /**
      * メモ参照API
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse

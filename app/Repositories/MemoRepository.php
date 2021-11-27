@@ -10,6 +10,26 @@ use App\Protocols\MemoRepositoryProtocol;
 class MemoRepository implements MemoRepositoryProtocol
 {
     /**
+     * Memoモデル一覧取得
+     *
+     * @return void
+     */
+    public function index()
+    {
+        try {
+            return Memo::where('is_archive', false)
+            ->where('is_public', true)
+            ->orWhere(function ($query) {
+                $query->where('is_archive', false);
+                $query->where('user_id', request()->user()->id ?? 0);
+            })->orderBy('user_id', 'desc')
+            ->latest()
+            ->simplePaginate(30);
+        } catch (\Exception) {
+            dd('モデル作成失敗');
+        }
+    }
+    /**
      * Memoモデル作成
      *
      * @param MemoRequest $request
@@ -35,7 +55,7 @@ class MemoRepository implements MemoRepositoryProtocol
         }
     }
 
-    public function update(MemoRequest $request, Memo $memo) :Memo
+    public function update(MemoRequest $request, Memo $memo) : Memo
     {
         try {
             $memo->folder_id = $request->get('folder_id', null);
